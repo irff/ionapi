@@ -22,14 +22,28 @@ class KeyOpinionLeader(restful.Resource):
         for leader in json_input["name"]:
             s = None
             if keyword != "":
-                s = Search(using=client, index=settings.ES_INDEX)\
-                    .filter("term",content=leader)\
-                    .query("term",content=keyword)\
-                    .query("range",**{'publish': {"from": begin,"to": end}})
+                if len(json_input["media"]) > 0:
+                    s = Search(using=client, index=settings.ES_INDEX)\
+                        .filter("term",content=leader)\
+                        .filter("term",provider=json_input["media"])\
+                        .filter("range",**{'publish': {"from": begin,"to": end}})\
+                        .query("term",content=keyword)
+                else:
+                    s = Search(using=client, index=settings.ES_INDEX)\
+                        .filter("term",content=leader)\
+                        .filter("range",**{'publish': {"from": begin,"to": end}})\
+                        .query("term",content=keyword)
             else:
-                s = Search(using=client, index=settings.ES_INDEX)\
-                    .filter("term",content=leader)\
-                    .query("range",**{'publish': {"from": begin,"to": end}})
+                if len(json_input["media"]) > 0:
+                    s = Search(using=client, index=settings.ES_INDEX)\
+                        .filter("term",content=leader)\
+                        .filter("term",provider=json_input["media"])\
+                        .filter("range",**{'publish': {"from": begin,"to": end}})
+                else:
+                    s = Search(using=client, index=settings.ES_INDEX)\
+                        .filter("term",content=leader)\
+                        .filter("range",**{'publish': {"from": begin,"to": end}})
+
 
             result = s.execute()
             print(str(s.to_dict()))
