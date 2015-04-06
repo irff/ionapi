@@ -3,6 +3,7 @@ from flask import request
 from elasticsearch_dsl import Search, Q
 import json
 import settings
+import helper
 import ionelasticsearch
 
 class KeyOpinionLeader(restful.Resource):
@@ -12,14 +13,26 @@ class KeyOpinionLeader(restful.Resource):
     def post(self):
         json_input = request.get_json(force=True)
 
-        iones = ionelasticsearch.get_instance()
         output = {}
-        for leader in json_input['name']:
-            client = ionelasticsearch.get_instance()
-            s = Search(using=client, index=settings.ES_INDEX)\
-                .query("term",content=leader)
+        client = ionelasticsearch.get_instance()
+
+        keyword = json_input["keyword"]
+        begin = helper.create_timestamp(json_input["begin"])
+        end = helper.create_timestamp(json_input["end"])
+        for leader in json_input["name"]:
+            s = None
+            if keyword != "":
+                s = Search(using=client, index=settings.ES_INDEX)\
+                    .filter("term",content=leader)\
+                    .query("term",content=keyword)\
+                    .query("range",**{'publish': {"from": begin,"to": end}})
+            else:
+                s = Search(using=client, index=settings.ES_INDEX)\
+                    .filter("term",content=leader)\
+                    .query("range",**{'publish': {"from": begin,"to": end}})
 
             result = s.execute()
+            print(str(s.to_dict()))
             output[leader] = result.hits.total
 
         return output
