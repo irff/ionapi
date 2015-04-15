@@ -13,6 +13,27 @@ class KeyOpinionLeader(restful.Resource):
     def post(self):
         json_input = request.get_json(force=True)
 
+        if "media" not in json_input:
+            json_input["media"] = [];
+
+        if "keyword" not in json_input:
+            return {"error":"keyword required"}
+
+        if "begin" not in json_input:
+            return {"error":"begin date required"}
+
+        if "end" not in json_input:
+            return {"error":"begin end required"}
+
+        if "leader" not in json_input:
+            return {"error":"begin end required"}
+
+        if helper.check_datetime(json_input["begin"]) == False:
+            return {"error":"begin date format exception"}
+
+        if helper.check_datetime(json_input["end"]) == False:
+            return {"error":"begin date format exception"}
+
         output = {}
         client = ionelasticsearch.get_instance()
 
