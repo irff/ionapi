@@ -1,0 +1,4 @@
+flask>=0.8
+flask-restful
+elasticsearch>=1.0.0,<2.0.0
+elasticsearch-dsl
