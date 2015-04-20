@@ -30,22 +30,41 @@ class MediaShareSummary(restful.Resource):
         if helper.check_datetime(json_input["end"]) == False:
             return {"error":"begin date format exception"}
 
-        output = {}
+
         client = ionelasticsearch.get_instance()
 
         keyword = json_input["keyword"]
         begin = helper.create_timestamp(json_input["begin"])
         end = helper.create_timestamp(json_input["end"])
 
-        s = Search(using=client, index=settings.ES_INDEX)\
-                .filter("term",content=keyword)\
-                .filter("range",**{'publish': {"from": begin,"to": end}})
+        s = Search(using=client, index=settings.ES_INDEX) \
+            .filter("term",content=keyword) \
+            .filter("range",**{'publish': {"from": begin,"to": end}})
         s.aggs.bucket("group_by_state","terms",field="provider")
 
         result = s.execute()
+
+        output = {}
+
+        if len(json_input["media"]) > 0:
+            for a in json_input["media"]:
+                output[a] = 0
+        else:
+            provider = Search(using=client, index=settings.ES_INDEX)
+            provider.aggs.bucket("group_by_state","terms",field="provider")
+
+            provider_result = provider.execute()
+            providers = provider_result.aggregations.group_by_state.buckets
+
+            for a in providers:
+                output[a.key] = 0
 
         for a in result.aggregations.group_by_state.buckets:
             if len(json_input["media"]) == 0 or a.key in json_input["media"]:
                 output[a.key] = a.doc_count
 
-        return output
+
+        result = {}
+        result["result"] = [];
+        result["result"].append({"media":output})
+        return result
