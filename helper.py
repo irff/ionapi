@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, date
+import time
 
 def create_timestamp(datetime_string):
     date = datetime_string.split(" ")
@@ -13,7 +14,8 @@ def check_datetime(datetime_string):
 
 
 def create_unix_timestamp(datetime_string):
-    return datetime.strptime(datetime_string, "%Y-%m-%d %H:%M:%S")
+    date = datetime.strptime(datetime_string, "%Y-%m-%d %H:%M:%S")
+    return time.mktime(date.timetuple())
 
 def create_date(datetime_string):
     date_arr = datetime_string.split(" ")
