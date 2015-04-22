@@ -33,7 +33,7 @@ class MediaShareSummary(restful.Resource):
 
         client = ionelasticsearch.get_instance()
 
-        keyword = json_input["keyword"]
+        keyword = json_input["keyword"].lower()
         begin = helper.create_timestamp(json_input["begin"])
         end = helper.create_timestamp(json_input["end"])
 

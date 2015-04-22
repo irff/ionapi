@@ -4,14 +4,16 @@ from elasticsearch_dsl import Search, Q
 import settings
 import helper
 import ionelasticsearch
-import json
 
-class WordFrequency(restful.Resource):
+class News(restful.Resource):
     def get(self):
         return {'hello': 'world'}
 
     def post(self):
         json_input = request.get_json(force=True)
+
+        if "media" not in json_input:
+            json_input["media"] = [];
 
         if "keyword" not in json_input:
             return {"error":"keyword required"}
@@ -23,9 +25,8 @@ class WordFrequency(restful.Resource):
             return {"error":"begin end required"}
 
         if "limit" not in json_input:
-            json_input["limit"] = 100
+            json_input["limit"] = 10
 
-        json_input["limit"] += 1
 
         if helper.check_datetime(json_input["begin"]) == False:
             return {"error":"begin date format exception"}
@@ -35,31 +36,31 @@ class WordFrequency(restful.Resource):
 
 
         client = ionelasticsearch.get_instance()
-
+        limit = json_input["limit"]
         keyword = json_input["keyword"].lower()
-        begin =  helper.create_timestamp(json_input["begin"])
+        begin = helper.create_timestamp(json_input["begin"])
         end = helper.create_timestamp(json_input["end"])
 
-        if len(json_input["media"]) > 0:
-            s = Search(using=client, index=settings.ES_INDEX) \
-                .filter("term",content=keyword)\
-                .filter("term",provider=json_input["media"])\
-                .filter("range",**{'publish': {"from": begin,"to": end}})
-            s.aggs.bucket("group_by_state","terms",field="content",size=json_input["limit"])
-        else:
-            s = Search(using=client, index=settings.ES_INDEX) \
-                .filter("term",content=keyword)\
-                .filter("range",**{'publish': {"from": begin,"to": end}})
-            s.aggs.bucket("group_by_state","terms",field="content",size=json_input["limit"])
-
+        s = Search(using=client, index=settings.ES_INDEX) \
+            .filter("term",content=keyword) \
+            .filter("range",**{'publish': {"from": begin,"to": end}})
         result = s.execute()
+        result = result[0:limit]
 
-        output = {}
-        for a in result.aggregations.group_by_state.buckets:
-            if keyword != a.key:
-                output[a.key] = a.doc_count
+        news = []
+        for i in result:
+            item = {}
+            item["title"] = i.title
+            item["url"] = i.url
+            item["content"] = i.content
+            item["publish"] = i.publish
+            item["author"] = i.author
+            item["location"] = i.location
+            item["privider"] = i.provider
+            item["date_crawl"] = i.timestamp
+            news.append(item)
 
         result = {}
         result["result"] = [];
-        result["result"].append({"words":output})
+        result["result"].append({"news":news})
         return result

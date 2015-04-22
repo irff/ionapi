@@ -142,6 +142,80 @@ Response example from server
     ]
 }
 ```
+
+POST /news
+
+```bash
+{
+  "media": ["cnnindonesia.com","rmol.co"],
+  "keyword": "presiden",
+  "limit" : 5,
+  "begin": "2015-04-01 01:00:00",
+  "end": "2015-04-04 01:00:00"
+}
+```
+Response example from server
+
+```bash
+{
+    "result": [
+        {
+            "news": [
+                {
+                    "author": "Laporan: Wahyu Sabda Kuncahyo",
+                    "content": "RMOL. Kuasa hukum Golkar Munas Bali, Yusril Ihza Mahendra menegaskan, kepengurusan ...",
+                    "date_crawl": "2015-04-06T11:13:28.395000",
+                    "location": " ",
+                    "privider": "rmol.co",
+                    "publish": "2015-04-01T12:52:00",
+                    "title": "Yusril: Agung Cs Tak Berhak Lagi Bertindak Atas Nama DPP Golkar",
+                    "url": "http://www.rmol.co/read/2015/04/01/197651/Yusril:-Agung-Cs-Tak-Berhak-Lagi-Bertindak-Atas-Nama-DPP-Golkar-"
+                },
+                {
+                    "author": "Laporan: Ihsan Dalimunthe",
+                    "content": "RMOL. Sebelum resmi digadang sebagai capres dari PDI Perjuangan, sosok Jokowi tak ...",
+                    "date_crawl": "2015-04-06T11:12:46.514000",
+                    "location": " ",
+                    "privider": "rmol.co",
+                    "publish": "2015-04-02T18:52:00",
+                    "title": "Wajarlah, Ini Semua Akibat Kabinet Kerja Tanpa Mikir...",
+                    "url": "http://politik.rmol.co/read/2015/04/03/197820/Wajarlah,-Ini-Semua-Akibat-Kabinet-Kerja-Tanpa-Mikir...-"
+                },
+                {
+                    "author": "Laporan: Ujang Sunda",
+                    "content": "RMOL. Jumlah staf di Kantor Staf Kepresidenan bisa mencapai 70 orang. Meski terlihat ...",
+                    "date_crawl": "2015-04-06T11:14:55.216000",
+                    "location": " ",
+                    "privider": "rmol.co",
+                    "publish": "2015-04-02T12:27:00",
+                    "title": "Punya Staf 70 Orang, Luhut Panjaitan Ngomong Begini",
+                    "url": "http://www.rmol.co/read/2015/04/02/197787/Punya-Staf-70-Orang,-Luhut-Panjaitan-Ngomong-Begini-"
+                },
+                {
+                    "author": "Laporan: Ihsan Dalimunthe",
+                    "content": "RMOL. Ekspektasi publik soal Jusuf Kalla yang diyakini akan bisa menjadi mentor ...",
+                    "date_crawl": "2015-04-06T11:17:17.947000",
+                    "location": " ",
+                    "privider": "rmol.co",
+                    "publish": "2015-04-03T08:45:00",
+                    "title": "Ternyata, Umur JK Saja yang Lebih Banyak",
+                    "url": "http://politik.rmol.co/read/2015/04/03/197875/Ternyata,-Umur-JK-Saja-yang-Lebih-Banyak-"
+                },
+                {
+                    "author": "Laporan: Ihsan Dalimunthe",
+                    "content": "RMOL. Politisi PDIP Effendi Simbolon mengaku akan mendapatkan banyak hikmah ...",
+                    "date_crawl": "2015-04-06T11:14:14.357000",
+                    "location": " ",
+                    "privider": "rmol.co",
+                    "publish": "2015-04-03T00:25:00",
+                    "title": "Effendi Simbolon Tuding Istana Tak Ngerti Esensi Negara",
+                    "url": "http://politik.rmol.co/read/2015/04/03/197826/Effendi-Simbolon-Tuding-Istana-Tak-Ngerti-Esensi-Negara-"
+                }
+            ]
+        }
+    ]
+}
+```
 if not set limit, then limit set to 100.
 
 if list media not set, then all media will proceed.
