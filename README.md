@@ -5,32 +5,47 @@
 POST /mediashare/
 
 ```bash
---data (JSON)
-    media=[ALL|Kompas|Inilah|CNN]
-    keywords=String
-    begin=timestamp
-    end=timestamp
+{
+  "media": ["cnnindonesia.com","rmol.com"],
+  "keyword": "presiden",
+  "begin": "2015-04-01 01:00:00",
+  "end": "2015-04-04 01:00:00"
+}
 ```
 
 Response example from server
 
 ```bash
 {
-    [
-        'date':'2015-01-01',
-        'data': [
-                    'kompas':'100',
-                    'inilah':'10',
-                    'cnn':'88',
-                ]
-    ],
-    [
-        'date':'2015-01-01',
-        'data': [
-                    'kompas':'100',
-                    'inilah':'10',
-                    'cnn':'88',
-                ]
+    "result": [
+        {
+            "date": "2015-04-01",
+            "media": {
+                "cnnindonesia.com": 0,
+                "rmol.com": 0
+            }
+        },
+        {
+            "date": "2015-04-02",
+            "media": {
+                "cnnindonesia.com": 0,
+                "rmol.com": 0
+            }
+        },
+        {
+            "date": "2015-04-03",
+            "media": {
+                "cnnindonesia.com": 0,
+                "rmol.com": 0
+            }
+        },
+        {
+            "date": "2015-04-04",
+            "media": {
+                "cnnindonesia.com": 0,
+                "rmol.com": 0
+            }
+        }
     ]
 }
 ```
@@ -38,68 +53,95 @@ Response example from server
 POST /mediashare/summary
 
 ```bash
---data (JSON)
-    media=[all/media_name]
-    keywords=String
-    begin=timestamp
-    end=timestamp
+{
+  "media": ["cnnindonesia.com","rmol.co"],
+  "keyword": "presiden",
+  "begin": "2015-04-01 01:00:00",
+  "end": "2015-04-04 01:00:00"
+}
 ```
 Response example from server
 
 ```bash
 {
-    [
-        'kompas':'100',
-        'inilah':'1000',
-        'detik':'113',
-    ]   
+    "result": [
+        {
+            "media": {
+                "cnnindonesia.com": 0,
+                "rmol.co": 9
+            }
+        }
+    ]
 }
 ```
 
 POST /keyopinionleader/
 
 ```bash
---data (JSON)
-    name=[Jokowi|Prabowo|All]
-    media=[Kompas|Inilah|All]
-    keywords=String
-    begin=timestamp
-    end=timestamp
+{
+  "media": ["cnnindonesia.com","rmol.co"],
+  "name": ["jokowi","prabowo"],
+  "keyword": "presiden",
+  "begin": "2015-04-01 01:00:00",
+  "end": "2015-04-04 01:00:00"
+}
 ```
 Response example from server
 
 ```bash
 {
-    [
-        'Jokowi':'100',
-        'Prabowo':'1000',
-        'Badrodin Haiti':'113',
-        'Susilo Bambang':'113',
-        'Megawati Soekarnoputri':'113',
-    ]   
+    "result": [
+        {
+            "jokowi": 5,
+            "prabowo": 0
+        }
+    ]
 }
 ```
 
 POST /wordfrequency
 
 ```bash
---data (JSON)
-    name=[Jokowi|Prabowo|All]
-    media=[Kompas|Inilah|All]
-    keywords=[key1,key2]
-    begin=timestamp
-    end=timestamp   
+{
+  "media": ["cnnindonesia.com","rmol.co"],
+  "limit" : 20,
+  "keyword": "presiden",
+  "begin": "2015-04-01 01:00:00",
+  "end": "2015-04-04 01:00:00"
+}  
 ```
 Response example from server
 
 ```bash
 {
-        [
-            'saya':'100',
-            'mengapa':'1000',
-            'dimana':'113',
-            'bahkan':'113',
-            'kapan':'113',
-        ]   
+    "result": [
+        {
+            "words": {
+                "2": 8,
+                "4": 8,
+                "ada": 6,
+                "adalah": 4,
+                "akan": 4,
+                "dalam": 6,
+                "dan": 9,
+                "dari": 7,
+                "dengan": 7,
+                "di": 9,
+                "hanya": 5,
+                "ini": 9,
+                "itu": 5,
+                "jakarta": 5,
+                "kamis": 7,
+                "karena": 6,
+                "kata": 6,
+                "rmol": 9,
+                "saat": 6,
+                "yang": 9
+            }
+        }
+    ]
 }
 ```
+if not set limit, then limit set to 100.
+
+if list media not set, then all media will proceed.

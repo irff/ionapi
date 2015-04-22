@@ -23,10 +23,10 @@ class KeyOpinionLeader(restful.Resource):
             return {"error":"begin date required"}
 
         if "end" not in json_input:
-            return {"error":"begin end required"}
+            return {"error":"end date required"}
 
-        if "leader" not in json_input:
-            return {"error":"begin end required"}
+        if "name" not in json_input:
+            return {"error":"list leader name required"}
 
         if helper.check_datetime(json_input["begin"]) == False:
             return {"error":"begin date format exception"}
@@ -70,4 +70,7 @@ class KeyOpinionLeader(restful.Resource):
             print(str(s.to_dict()))
             output[leader] = result.hits.total
 
-        return output
+        result = {}
+        result["result"] = []
+        result["result"].append(output)
+        return result
