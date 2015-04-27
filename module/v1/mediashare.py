@@ -39,7 +39,9 @@ class MediaShare(restful.Resource):
         date_end = helper.create_date(json_input["end"])
 
 
-        provider = Search(using=client, index=settings.ES_INDEX)
+        provider = Search(using=client, index=settings.ES_INDEX)\
+            .filter("term",content=keyword)\
+            .filter("range",**{'publish': {"from": date_begin,"to": date_end}})
         provider.aggs.bucket("group_by_state","terms",field="provider")
 
         provider_result = provider.execute()

@@ -22,6 +22,9 @@ class WordFrequency(restful.Resource):
         if "end" not in json_input:
             return {"error":"begin end required"}
 
+        if "media" not in json_input:
+            return {"error":"media required"}
+
         if "limit" not in json_input:
             json_input["limit"] = 100
 
@@ -45,12 +48,12 @@ class WordFrequency(restful.Resource):
                 .filter("term",content=keyword)\
                 .filter("term",provider=json_input["media"])\
                 .filter("range",**{'publish': {"from": begin,"to": end}})
-            s.aggs.bucket("group_by_state","terms",field="content",size=json_input["limit"])
+            s.aggs.bucket("group_by_state","terms",field="content")
         else:
             s = Search(using=client, index=settings.ES_INDEX) \
                 .filter("term",content=keyword)\
                 .filter("range",**{'publish': {"from": begin,"to": end}})
-            s.aggs.bucket("group_by_state","terms",field="content",size=json_input["limit"])
+            s.aggs.bucket("group_by_state","terms",field="content")
 
         result = s.execute()
 
