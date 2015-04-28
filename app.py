@@ -29,4 +29,4 @@ api.add_resource(WordFrequency, endpoint_pre + 'wordfrequency')
 api.add_resource(News, endpoint_pre + 'news')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True,port=8274,host="0.0.0.0")

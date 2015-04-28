@@ -67,10 +67,9 @@ class KeyOpinionLeader(restful.Resource):
 
 
             result = s.execute()
-            print(str(s.to_dict()))
             output[leader] = result.hits.total
 
         result = {}
         result["result"] = []
-        result["result"].append(output)
+        result["result"].append({"people":output});
         return result
