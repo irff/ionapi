@@ -24,8 +24,11 @@ class News(restful.Resource):
         if "end" not in json_input:
             return {"error":"begin end required"}
 
-        if "limit" not in json_input:
-            json_input["limit"] = 10
+        if "page_size" not in json_input:
+            json_input["page_size"] = 20
+
+        if "from_page" not in json_input:
+            json_input["from_page"] = 0
 
 
         if helper.check_datetime(json_input["begin"]) == False:
@@ -36,16 +39,17 @@ class News(restful.Resource):
 
 
         client = ionelasticsearch.get_instance()
-        limit = json_input["limit"]
+        page_size = json_input["page_size"]
+        from_page = json_input["from_page"]
         keyword = json_input["keyword"].lower()
         begin = helper.create_timestamp(json_input["begin"])
         end = helper.create_timestamp(json_input["end"])
 
         s = Search(using=client, index=settings.ES_INDEX) \
-            .filter("term",content=keyword) \
-            .filter("range",**{'publish': {"from": begin,"to": end}})
+            .filter("range",**{'publish': {"from": begin,"to": end}}) \
+            .query("term",content=keyword).extra(from_=from_page, size=page_size)
+
         result = s.execute()
-        result = result[0:limit]
 
         news = []
         for i in result:

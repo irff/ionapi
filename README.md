@@ -149,7 +149,8 @@ POST /news
 {
   "media": ["cnnindonesia.com","rmol.co"],
   "keyword": "presiden",
-  "limit" : 5,
+  "from_page" : 0,
+  "page_size" : 10,
   "begin": "2015-04-01 01:00:00",
   "end": "2015-04-04 01:00:00"
 }
@@ -216,6 +217,7 @@ Response example from server
     ]
 }
 ```
+if not set page_size, then size set to 20.
+if not set page_from, then page_from set to 0.
 if not set limit, then limit set to 100.
-
 if list media not set, then all media will proceed.
