@@ -40,8 +40,8 @@ class MediaShare(restful.Resource):
 
 
         provider = Search(using=client, index=settings.ES_INDEX)\
-            .filter("term",content=keyword)\
-            .filter("range",**{'publish': {"from": date_begin,"to": date_end}})
+            .filter("range",**{'publish': {"from": date_begin,"to": date_end}})\
+            .query("term",content=keyword)
         provider.aggs.bucket("group_by_state","terms",field="provider")
 
         provider_result = provider.execute()
@@ -62,8 +62,8 @@ class MediaShare(restful.Resource):
             end = helper.create_timestamp(next_date_string)
 
             s = Search(using=client, index=settings.ES_INDEX)\
-                .filter("term",content=keyword)\
-                .filter("range",**{'publish': {"from": begin,"to": end}})
+                .filter("range",**{'publish': {"from": begin,"to": end}})\
+                .query("term",content=keyword)
             s.aggs.bucket("group_by_state","terms",field="provider")
 
             result = s.execute()

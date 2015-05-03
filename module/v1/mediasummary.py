@@ -38,8 +38,8 @@ class MediaShareSummary(restful.Resource):
         end = helper.create_timestamp(json_input["end"])
 
         s = Search(using=client, index=settings.ES_INDEX) \
-            .filter("term",content=keyword) \
-            .filter("range",**{'publish': {"from": begin,"to": end}})
+            .filter("range",**{'publish': {"from": begin,"to": end}})\
+            .query("term",content=keyword)
         s.aggs.bucket("group_by_state","terms",field="provider")
 
         result = s.execute()
