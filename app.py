@@ -5,6 +5,7 @@ from module.v1.helloworld import HelloWorld
 from module.v1.mediashare import MediaShare
 from module.v1.keyopinionleader import KeyOpinionLeader
 from module.v1.wordfrequency import WordFrequency
+from module.v1.wordfrequencymanual import WordFrequencyManual
 from module.v1.mediasummary import MediaShareSummary
 from module.v1.news import News
 
@@ -26,7 +27,9 @@ api.add_resource(MediaShare, endpoint_pre + 'mediashare')
 api.add_resource(MediaShareSummary, endpoint_pre + 'mediashare/summary')
 api.add_resource(KeyOpinionLeader, endpoint_pre + 'keyopinionleader')
 api.add_resource(WordFrequency, endpoint_pre + 'wordfrequency')
+api.add_resource(WordFrequencyManual, endpoint_pre + 'wordfrequencymanual')
 api.add_resource(News, endpoint_pre + 'news')
+
 
 if __name__ == '__main__':
     app.run(debug=True,port=8274,host="0.0.0.0")

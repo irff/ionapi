@@ -4,8 +4,9 @@ from elasticsearch_dsl import Search, Q
 import settings
 import helper
 import ionelasticsearch
+import operator
 
-class News(restful.Resource):
+class WordFrequencyManual(restful.Resource):
     def get(self):
         return {'hello': 'world'}
 
@@ -24,11 +25,8 @@ class News(restful.Resource):
         if "end" not in json_input:
             return {"error":"begin end required"}
 
-        if "page_size" not in json_input:
-            json_input["page_size"] = 20
-
-        if "from_page" not in json_input:
-            json_input["from_page"] = 0
+        if "limit" not in json_input:
+            json_input["limit"] = 100
 
 
         if helper.check_datetime(json_input["begin"]) == False:
@@ -39,34 +37,37 @@ class News(restful.Resource):
 
 
         client = ionelasticsearch.get_instance()
-        page_size = json_input["page_size"]
-        from_page = json_input["from_page"]
         keyword = json_input["keyword"].lower()
+        limit = json_input["limit"]
         begin = helper.create_timestamp(json_input["begin"])
         end = helper.create_timestamp(json_input["end"])
 
         s = Search(using=client, index=settings.ES_INDEX) \
             .filter("range",**{'publish': {"from": begin,"to": end}}) \
-            .query("term",content=keyword).extra(from_=from_page, size=page_size)
+            .query("term",content=keyword)
+
         result = s.execute()
 
-        total = result.hits.total
-
-        news = []
+        words = {}
         for i in result:
-            item = {}
-            item["title"] = i.title
-            item["url"] = i.url
-            item["content"] = i.content
-            item["publish"] = i.publish
-            item["author"] = i.author
-            item["location"] = i.location
-            item["privider"] = i.provider
-            item["date_crawl"] = i.timestamp
-            news.append(item)
+            content = i.content.split(" ")
+            for word in content:
+                if(word not in words):
+                    words[word] = 1
+                else:
+                    words[word] += 1
+
+        resultwords = {}
+        counter = 1
+        for w in sorted(words.items(), key=operator.itemgetter(1), reverse=True):
+            if w[0] not in(""):
+                resultwords[w[0]] = w[1]
+
+            if counter == limit:
+                break
+            counter += 1
 
         result = {}
-        result["result"] = [];
-        result["result"].append({"news":news})
-        result["total"] = total
+        result["result"] = []
+        result["result"].append({"words":resultwords})
         return result

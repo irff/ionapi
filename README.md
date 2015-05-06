@@ -99,8 +99,9 @@ Response example from server
 }
 ```
 
-POST /wordfrequency
-
+POST /wordfrequency (Insufficient Memory - NOT READY TO USE)
+You can use 
+POST /wordfrequencymanual
 ```bash
 {
   "media": ["cnnindonesia.com","rmol.co"],
@@ -214,7 +215,8 @@ Response example from server
                 }
             ]
         }
-    ]
+    ],
+    "total": 446
 }
 ```
 if not set page_size, then size set to 20.
