@@ -63,7 +63,7 @@ class News(restful.Resource):
             item["publish"] = i.publish
             item["author"] = i.author
             item["location"] = i.location
-            item["privider"] = i.provider
+            item["provider"] = i.provider
             item["date_crawl"] = i.timestamp
             news.append(item)
 
