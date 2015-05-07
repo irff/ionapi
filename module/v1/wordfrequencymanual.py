@@ -46,7 +46,7 @@ class WordFrequencyManual(restful.Resource):
         s = Search(using=client, index=settings.ES_INDEX) \
             .filter("range",**{'publish': {"from": begin,"to": end}})
 
-        q = Q("multi_match", query='python django', fields=['title', 'body'])
+        q = Q("multi_match", query=keyword, fields=['content'])
 
         s = s.query(q)
         result = s.execute()

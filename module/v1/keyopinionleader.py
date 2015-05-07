@@ -53,7 +53,7 @@ class KeyOpinionLeader(restful.Resource):
                     .filter("term",content=leader)\
                     .filter("range",**{'publish': {"from": begin,"to": end}})
 
-            q = Q("multi_match", query='python django', fields=['title', 'body'])
+            q = Q("multi_match", query=keyword, fields=['content'])
             s = s.query(q)
             result = s.execute()
             output[leader] = result.hits.total
