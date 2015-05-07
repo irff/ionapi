@@ -45,16 +45,14 @@ class WordFrequency(restful.Resource):
 
         if len(json_input["media"]) > 0:
             s = Search(using=client, index=settings.ES_INDEX) \
-                .filter("term",content=keyword)\
                 .filter("term",provider=json_input["media"])\
                 .filter("range",**{'publish': {"from": begin,"to": end}})
-            s.aggs.bucket("group_by_state","terms",field="content")
         else:
             s = Search(using=client, index=settings.ES_INDEX) \
-                .filter("term",content=keyword)\
                 .filter("range",**{'publish': {"from": begin,"to": end}})
-            s.aggs.bucket("group_by_state","terms",field="content")
 
+        q = Q("multi_match", query=keyword, fields=['content'])
+        s = s.query(q)
         result = s.execute()
 
         output = {}

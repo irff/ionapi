@@ -46,8 +46,10 @@ class News(restful.Resource):
         end = helper.create_timestamp(json_input["end"])
 
         s = Search(using=client, index=settings.ES_INDEX) \
-            .filter("range",**{'publish': {"from": begin,"to": end}}) \
-            .query("term",content=keyword).extra(from_=from_page, size=page_size)
+            .filter("range",**{'publish': {"from": begin,"to": end}})
+
+        q = Q("multi_match", query=keyword, fields=['content'])
+        s = s.query(q)
         result = s.execute()
 
         total = result.hits.total

@@ -42,30 +42,19 @@ class KeyOpinionLeader(restful.Resource):
         end = helper.create_timestamp(json_input["end"])
         for leader in json_input["name"]:
             s = None
-            if keyword != "":
-                if len(json_input["media"]) > 0:
-                    s = Search(using=client, index=settings.ES_INDEX)\
-                        .filter("term",content=leader)\
-                        .filter("term",provider=json_input["media"])\
-                        .filter("range",**{'publish': {"from": begin,"to": end}})\
-                        .query("term",content=keyword)
-                else:
-                    s = Search(using=client, index=settings.ES_INDEX)\
-                        .filter("term",content=leader)\
-                        .filter("range",**{'publish': {"from": begin,"to": end}})\
-                        .query("term",content=keyword)
+
+            if len(json_input["media"]) > 0:
+                s = Search(using=client, index=settings.ES_INDEX)\
+                    .filter("term",content=leader)\
+                    .filter("term",provider=json_input["media"])\
+                    .filter("range",**{'publish': {"from": begin,"to": end}})
             else:
-                if len(json_input["media"]) > 0:
-                    s = Search(using=client, index=settings.ES_INDEX)\
-                        .filter("term",content=leader)\
-                        .filter("term",provider=json_input["media"])\
-                        .filter("range",**{'publish': {"from": begin,"to": end}})
-                else:
-                    s = Search(using=client, index=settings.ES_INDEX)\
-                        .filter("term",content=leader)\
-                        .filter("range",**{'publish': {"from": begin,"to": end}})
+                s = Search(using=client, index=settings.ES_INDEX)\
+                    .filter("term",content=leader)\
+                    .filter("range",**{'publish': {"from": begin,"to": end}})
 
-
+            q = Q("multi_match", query='python django', fields=['title', 'body'])
+            s = s.query(q)
             result = s.execute()
             output[leader] = result.hits.total
 

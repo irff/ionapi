@@ -1,6 +1,7 @@
 from flask.ext import restful
 from flask import request
 from elasticsearch_dsl import Search, Q
+from elasticsearch_dsl.query import MultiMatch
 import settings
 import helper
 import ionelasticsearch
@@ -43,9 +44,11 @@ class WordFrequencyManual(restful.Resource):
         end = helper.create_timestamp(json_input["end"])
 
         s = Search(using=client, index=settings.ES_INDEX) \
-            .filter("range",**{'publish': {"from": begin,"to": end}}) \
-            .query("term",content=keyword)
+            .filter("range",**{'publish': {"from": begin,"to": end}})
 
+        q = Q("multi_match", query='python django', fields=['title', 'body'])
+
+        s = s.query(q)
         result = s.execute()
 
         words = {}
