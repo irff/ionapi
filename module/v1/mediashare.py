@@ -39,12 +39,8 @@ class MediaShare(restful.Resource):
         date_end = helper.create_date(json_input["end"])
 
 
-        provider = Search(using=client, index=settings.ES_INDEX)\
-            .filter("range",**{'publish': {"from": date_begin,"to": date_end}})
-        q = Q("multi_match", query=keyword, fields=['content'])
-        provider = provider.query(q)
-        provider.aggs.bucket("group_by_state","terms",field="provider")
-
+        provider = Search(using=client, index=settings.ES_INDEX)
+        provider.aggs.bucket("group_by_state","terms",field="provider", size=0)
         provider_result = provider.execute()
         providers = provider_result.aggregations.group_by_state.buckets
 
@@ -67,7 +63,7 @@ class MediaShare(restful.Resource):
 
             q = Q("multi_match", query=keyword, fields=['content'])
             s = s.query(q)
-            s.aggs.bucket("group_by_state","terms",field="provider")
+            s.aggs.bucket("group_by_state","terms",field="provider", size=0)
 
             result = s.execute()
 
@@ -86,6 +82,16 @@ class MediaShare(restful.Resource):
             for a in result.aggregations.group_by_state.buckets:
                 if len(json_input["media"]) == 0 or a.key in json_input["media"]:
                     data[a.key] = a.doc_count
+
+            if "rakyat.com" in data and "pikiran" in data:
+                data["pikiran-rakyat.com"] = data["rakyat.com"]
+                data.pop("rakyat.com")
+                data.pop("pikiran")
+
+            if "bbc.co.uk" in data and "indonesia" in data:
+                data["bbc.co.uk/indonesia"] = data["bbc.co.uk"]
+                data.pop("bbc.co.uk")
+                data.pop("indonesia")
 
             date_data["media"] = data
 

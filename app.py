@@ -8,6 +8,7 @@ from module.v1.wordfrequency import WordFrequency
 from module.v1.wordfrequencymanual import WordFrequencyManual
 from module.v1.mediasummary import MediaShareSummary
 from module.v1.news import News
+from module.v1.getmedias import Medias
 
 app = Flask(__name__)
 api = restful.Api(app)
@@ -29,6 +30,7 @@ api.add_resource(KeyOpinionLeader, endpoint_pre + 'keyopinionleader')
 api.add_resource(WordFrequency, endpoint_pre + 'wordfrequency')
 api.add_resource(WordFrequencyManual, endpoint_pre + 'wordfrequencymanual')
 api.add_resource(News, endpoint_pre + 'news')
+api.add_resource(Medias, endpoint_pre + 'listmedia')
 
 
 if __name__ == '__main__':

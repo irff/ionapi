@@ -53,7 +53,7 @@ class MediaShareSummary(restful.Resource):
                 output[a] = 0
         else:
             provider = Search(using=client, index=settings.ES_INDEX)
-            provider.aggs.bucket("group_by_state","terms",field="provider")
+            provider.aggs.bucket("group_by_state","terms",field="provider",size=0)
 
             provider_result = provider.execute()
             providers = provider_result.aggregations.group_by_state.buckets
@@ -65,8 +65,17 @@ class MediaShareSummary(restful.Resource):
             if len(json_input["media"]) == 0 or a.key in json_input["media"]:
                 output[a.key] = a.doc_count
 
+        if "rakyat.com" in output and "pikiran" in output:
+            output["pikiran-rakyat.com"] = output["rakyat.com"]
+            output.pop("rakyat.com")
+            output.pop("pikiran")
+
+        if "bbc.co.uk" in output and "indonesia" in output:
+            output["bbc.co.uk/indonesia"] = output["bbc.co.uk"]
+            output.pop("bbc.co.uk")
+            output.pop("indonesia")
 
         result = {}
-        result["result"] = [];
+        result["result"] = []
         result["result"].append({"media":output})
         return result
