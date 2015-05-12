@@ -1,5 +1,7 @@
 from flask import Flask
 from flask.ext import restful
+from flask.ext.cors import CORS
+import logging
 
 from module.v1.helloworld import HelloWorld
 from module.v1.mediashare import MediaShare
@@ -10,16 +12,19 @@ from module.v1.mediasummary import MediaShareSummary
 from module.v1.news import News
 from module.v1.getmedias import Medias
 
+logging.basicConfig(level=logging.INFO)
 app = Flask(__name__)
+cors = CORS(app)
 api = restful.Api(app)
 
+"""
 @app.after_request
 def after_request(response):
     response.headers.add('Access-Control-Allow-Origin', '*')
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
     return response
-
+"""
 
 endpoint_pre = '/api/v1/'
 
