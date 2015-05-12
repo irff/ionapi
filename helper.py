@@ -23,3 +23,9 @@ def create_date(datetime_string):
 
 def add_days_timedelta(date, delta):
     return date + timedelta(days=delta)
+
+def check_keyword_phrase(keyword):
+    if keyword[0] == "*" and keyword[len(keyword) - 1] == "*":
+        return True
+    else:
+        return False

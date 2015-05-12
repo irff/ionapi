@@ -38,6 +38,11 @@ class KeyOpinionLeader(restful.Resource):
         client = ionelasticsearch.get_instance()
 
         keyword = json_input["keyword"].lower()
+        match_type = "best_fields"
+        if helper.check_keyword_phrase(keyword):
+            match_type = "phrase_prefix"
+            keyword = keyword.replace("*","")
+
         begin = helper.create_timestamp(json_input["begin"])
         end = helper.create_timestamp(json_input["end"])
         for leader in json_input["name"]:
@@ -53,7 +58,7 @@ class KeyOpinionLeader(restful.Resource):
                     .filter("term",content=leader)\
                     .filter("range",**{'publish': {"from": begin,"to": end}})
 
-            q = Q("multi_match", query=keyword, fields=['content'])
+            q = Q("multi_match", query=keyword, fields=['content'],type=match_type)
             s = s.query(q)
             result = s.execute()
             output[leader] = result.hits.total

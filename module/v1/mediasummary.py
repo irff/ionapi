@@ -34,13 +34,19 @@ class MediaShareSummary(restful.Resource):
         client = ionelasticsearch.get_instance()
 
         keyword = json_input["keyword"].lower()
+
+        match_type = "best_fields"
+        if helper.check_keyword_phrase(keyword):
+            match_type = "phrase_prefix"
+            keyword = keyword.replace("*","")
+
         begin = helper.create_timestamp(json_input["begin"])
         end = helper.create_timestamp(json_input["end"])
 
         s = Search(using=client, index=settings.ES_INDEX) \
             .filter("range",**{'publish': {"from": begin,"to": end}})
 
-        q = Q("multi_match", query=keyword, fields=['content'])
+        q = Q("multi_match", query=keyword, fields=['content'],type=match_type)
         s = s.query(q)
         s.aggs.bucket("group_by_state","terms",field="provider")
 
