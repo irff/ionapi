@@ -65,14 +65,23 @@ class News(restful.Resource):
             item["url"] = i.url
             item["content"] = i.content
             item["publish"] = i.publish
-            item["author"] = i.author
-            item["location"] = i.location
+
+            if(isinstance(i.author, basestring)):
+                item["auhtor"] = i.author
+            else:
+                item["author"] = str(i.author)
+
+            if(isinstance(i.location, basestring)):
+                item["location"] = i.location
+            else:
+                item["location"] = i.location[0]
+
             item["provider"] = i.provider
             item["date_crawl"] = i.timestamp
             news.append(item)
 
         result = {}
-        result["result"] = [];
+        result["result"] = []
         result["result"].append({"news":news})
         result["total"] = total
         return result
