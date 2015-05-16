@@ -49,15 +49,18 @@ class WordFrequencyManual(restful.Resource):
             keyword = keyword.replace("*","")
 
         s = Search(using=client, index=settings.ES_INDEX) \
+            .filter("terms",provider=json_input["media"])\
             .filter("range",**{'publish': {"from": begin,"to": end}})
 
         q = Q("multi_match", query=keyword, fields=['content'], type=match_type)
 
         s = s.query(q)
-        result = s.execute()
-
+        result = s[0:s.count()].execute()
+        print "total "
+        print str(result.hits.total)
         words = {}
         for i in result:
+            print "#" + i.url
             content = i.content.split(" ")
             for word in content:
                 if(word not in words):

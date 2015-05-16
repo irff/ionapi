@@ -13,7 +13,7 @@ class News(restful.Resource):
         json_input = request.get_json(force=True)
 
         if "media" not in json_input:
-            json_input["media"] = [];
+            json_input["media"] = []
 
         if "keyword" not in json_input:
             return {"error":"keyword required"}
@@ -51,6 +51,7 @@ class News(restful.Resource):
             keyword = keyword.replace("*","")
 
         s = Search(using=client, index=settings.ES_INDEX) \
+            .filter("terms",provider=json_input["media"],execution="or")\
             .filter("range",**{'publish': {"from": begin,"to": end}})
         q = Q("multi_match", query=keyword, fields=['content'], type=match_type)
         s = s.query(q).extra(from_=from_page, size=page_size)

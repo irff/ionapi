@@ -51,7 +51,7 @@ class KeyOpinionLeader(restful.Resource):
             if len(json_input["media"]) > 0:
                 s = Search(using=client, index=settings.ES_INDEX)\
                     .filter("term",content=leader)\
-                    .filter("term",provider=json_input["media"])\
+                    .filter("terms",provider=json_input["media"])\
                     .filter("range",**{'publish': {"from": begin,"to": end}})
             else:
                 s = Search(using=client, index=settings.ES_INDEX)\
@@ -59,7 +59,7 @@ class KeyOpinionLeader(restful.Resource):
                     .filter("range",**{'publish': {"from": begin,"to": end}})
 
             q = Q("multi_match", query=keyword, fields=['content'],type=match_type)
-            s = s.query(q)
+            s = s[0:s.count()].query(q)
             result = s.execute()
             output[leader] = result.hits.total
 
