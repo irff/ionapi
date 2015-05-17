@@ -62,6 +62,7 @@ class MediaShare(restful.Resource):
                 .filter("range",**{'publish': {"from": begin,"to": end}})
 
             match_type = "best_fields"
+            new_keyword = keyword
             if helper.check_keyword_phrase(keyword):
                 match_type = "phrase_prefix"
                 new_keyword = keyword.replace("*","")
