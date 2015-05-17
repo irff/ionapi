@@ -56,11 +56,8 @@ class WordFrequencyManual(restful.Resource):
 
         s = s.query(q)
         result = s[0:s.count()].execute()
-        print "total "
-        print str(result.hits.total)
         words = {}
         for i in result:
-            print "#" + i.url
             content = i.content.split(" ")
             for word in content:
                 if(word not in words):
