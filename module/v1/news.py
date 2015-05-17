@@ -39,6 +39,17 @@ class News(restful.Resource):
 
 
         client = ionelasticsearch.get_instance()
+
+        if len(json_input["media"]) > 0:
+            providers = json_input["media"]
+        else:
+            provider = Search(using=client, index=settings.ES_INDEX)
+            provider.aggs.bucket("group_by_state","terms",field="provider", size=0)
+            provider_result = provider.execute()
+            providers = []
+            for p in provider_result.aggregations.group_by_state.buckets:
+                providers.append(p.key)
+
         page_size = json_input["page_size"]
         from_page = json_input["from_page"]
         keyword = json_input["keyword"].lower()
@@ -51,7 +62,7 @@ class News(restful.Resource):
             keyword = keyword.replace("*","")
 
         s = Search(using=client, index=settings.ES_INDEX) \
-            .filter("terms",provider=json_input["media"],execution="or")\
+            .filter("terms",provider=providers,execution="or")\
             .filter("range",**{'publish': {"from": begin,"to": end}})
         q = Q("multi_match", query=keyword, fields=['content'], type=match_type)
         s = s.query(q).extra(from_=from_page, size=page_size)

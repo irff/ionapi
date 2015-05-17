@@ -13,7 +13,7 @@ class MediaShareSummary(restful.Resource):
         json_input = request.get_json(force=True)
 
         if "media" not in json_input:
-            json_input["media"] = [];
+            json_input["media"] = []
 
         if "keyword" not in json_input:
             return {"error":"keyword required"}

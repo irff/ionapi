@@ -36,8 +36,18 @@ class WordFrequencyManual(restful.Resource):
         if helper.check_datetime(json_input["end"]) == False:
             return {"error":"begin date format exception"}
 
-
         client = ionelasticsearch.get_instance()
+
+        if len(json_input["media"]) > 0:
+            providers = json_input["media"]
+        else:
+            provider = Search(using=client, index=settings.ES_INDEX)
+            provider.aggs.bucket("group_by_state","terms",field="provider", size=0)
+            provider_result = provider.execute()
+            providers = []
+            for p in provider_result.aggregations.group_by_state.buckets:
+                providers.append(p.key)
+
         keyword = json_input["keyword"].lower()
         limit = json_input["limit"]
         begin = helper.create_timestamp(json_input["begin"])
@@ -49,7 +59,7 @@ class WordFrequencyManual(restful.Resource):
             keyword = keyword.replace("*","")
 
         s = Search(using=client, index=settings.ES_INDEX) \
-            .filter("terms",provider=json_input["media"])\
+            .filter("terms",provider=providers)\
             .filter("range",**{'publish': {"from": begin,"to": end}})
 
         q = Q("multi_match", query=keyword, fields=['content'], type=match_type)

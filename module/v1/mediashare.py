@@ -13,7 +13,7 @@ class MediaShare(restful.Resource):
         json_input = request.get_json(force=True)
 
         if "media" not in json_input:
-            json_input["media"] = [];
+            json_input["media"] = []
 
         if "keyword" not in json_input:
             return {"error":"keyword required"}
@@ -31,7 +31,7 @@ class MediaShare(restful.Resource):
             return {"error":"begin date format exception"}
 
         output = {}
-        output["result"] = [];
+        output["result"] = []
         client = ionelasticsearch.get_instance()
         keyword = json_input["keyword"].lower()
 
