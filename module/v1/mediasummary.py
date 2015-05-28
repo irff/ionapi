@@ -4,11 +4,25 @@ from elasticsearch_dsl import Search, Q
 import settings
 import helper
 import ionelasticsearch
+from flask_httpauth import HTTPBasicAuth
+from model.user import  User
+
+auth = HTTPBasicAuth()
+
+@auth.get_password
+def get_pw(username):
+    user = User.verify_auth_token(username)
+    if user:
+        return "unused"
+    else:
+        return "block"
 
 class MediaShareSummary(restful.Resource):
+    @auth.login_required
     def get(self):
         return {'hello': 'world'}
 
+    @auth.login_required
     def post(self):
         json_input = request.get_json(force=True)
 

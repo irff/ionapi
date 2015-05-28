@@ -1,5 +1,8 @@
 flask>=0.8
 flask-restful
 flask-cors
+flask-sqlalchemy
+flask-httpauth
 elasticsearch>=1.0.0,<2.0.0
 elasticsearch-dsl
+passlib

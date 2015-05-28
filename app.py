@@ -11,6 +11,7 @@ from module.v1.wordfrequencymanual import WordFrequencyManual
 from module.v1.mediasummary import MediaShareSummary
 from module.v1.news import News
 from module.v1.getmedias import Medias
+from module.v1.token import Token
 
 logging.basicConfig(level=logging.INFO)
 app = Flask(__name__)
@@ -36,7 +37,7 @@ api.add_resource(KeyOpinionLeader, endpoint_pre + 'keyopinionleader')
 api.add_resource(WordFrequencyManual, endpoint_pre + 'wordfrequencymanual')
 api.add_resource(News, endpoint_pre + 'news')
 api.add_resource(Medias, endpoint_pre + 'listmedia')
-
+api.add_resource(Token, endpoint_pre + 'token')
 
 if __name__ == '__main__':
     app.run(debug=True,port=8274,host="0.0.0.0")
