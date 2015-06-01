@@ -12,6 +12,7 @@ from module.v1.mediasummary import MediaShareSummary
 from module.v1.news import News
 from module.v1.getmedias import Medias
 from module.v1.token import Token
+from database import db_session
 
 logging.basicConfig(level=logging.INFO)
 app = Flask(__name__)
@@ -26,6 +27,10 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
     return response
 """
+
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    db_session.remove()
 
 endpoint_pre = '/api/v1/'
 

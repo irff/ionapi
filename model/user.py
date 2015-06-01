@@ -1,23 +1,20 @@
 __author__ = 'Kandito Agung'
 
 from flask.ext.sqlalchemy import SQLAlchemy
-from flask import Flask
+from sqlalchemy import Column, Integer, String
+from database import Base
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
 import hashlib
 import settings
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost/iondashboard'
-db = SQLAlchemy(app)
-
-class User(db.Model):
+class User(Base):
     __tablename__ = 'users'
-    iduser = db.Column(db.Integer, primary_key = True)
-    username = db.Column(db.String(45), index = True)
-    password = db.Column(db.String(128))
-    email = db.Column(db.String(45))
-    firstname = db.Column(db.String(65))
-    lastname = db.Column(db.String(65))
+    iduser = Column(Integer, primary_key = True)
+    username = Column(String(45), index = True)
+    password = Column(String(128))
+    email = Column(String(45))
+    firstname = Column(String(65))
+    lastname = Column(String(65))
 
     def __init__(self, username, password, email, firstname, lastname):
         self.username = username
