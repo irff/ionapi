@@ -45,4 +45,4 @@ api.add_resource(Medias, endpoint_pre + 'listmedia')
 api.add_resource(Token, endpoint_pre + 'token')
 
 if __name__ == '__main__':
-    app.run(debug=True,port=8274,host="0.0.0.0")
+    app.run(debug=True,port=8200,host="0.0.0.0")
