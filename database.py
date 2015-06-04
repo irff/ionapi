@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-engine = create_engine('mysql://root:@localhost/iondashboard', convert_unicode=True)
+engine = create_engine('mysql://root:@localhost/iondashboard', convert_unicode=True, pool_size = 100, pool_recycle=7200)
 db_session = scoped_session(sessionmaker(autocommit=False,
                                          autoflush=False,
                                          bind=engine))
