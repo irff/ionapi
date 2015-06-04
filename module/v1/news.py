@@ -24,6 +24,12 @@ class News(restful.Resource):
 
     @auth.login_required
     def post(self):
+        """
+        to get news
+        :return: newsresponse
+        """
+
+        #check all input
         json_input = request.get_json(force=True)
 
         if "media" not in json_input:
@@ -72,6 +78,11 @@ class News(restful.Resource):
 
         match_type = "best_fields"
         if helper.check_keyword_phrase(keyword):
+            """
+            if a phrase, change match_type with phrase_prefix
+            it make Elasticsearch searching keyword as phrases like "nama saya"
+            if match_type use best_fields, Elasticsearch will search with "nama" or "saya"
+            """
             match_type = "phrase_prefix"
             keyword = keyword.replace("*","")
 

@@ -34,6 +34,7 @@ def shutdown_session(exception=None):
 
 endpoint_pre = '/api/v1/'
 
+# register all resource
 api.add_resource(HelloWorld, endpoint_pre + '')
 api.add_resource(MediaShare, endpoint_pre + 'mediashare')
 api.add_resource(MediaShareSummary, endpoint_pre + 'mediashare/summary')

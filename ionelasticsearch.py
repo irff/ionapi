@@ -8,6 +8,11 @@ def get_instance():
     )
 
 def get_medias():
+    """
+    to get list of media
+    :return: list of media
+    """
+
     client = Elasticsearch(
         [settings.ES_URL]
     )

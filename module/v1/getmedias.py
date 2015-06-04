@@ -17,6 +17,10 @@ def get_pw(username):
 class Medias(restful.Resource):
     @auth.login_required
     def get(self):
+        """
+        to get list media
+        :return: list of media
+        """
         medias = ionelasticsearch.get_medias()
         result = {}
         result["result"] = medias

@@ -25,6 +25,12 @@ class KeyOpinionLeader(restful.Resource):
 
     @auth.login_required
     def post(self):
+        """
+        to get key opinion leader
+        :return: key opinion leader response
+        """
+
+        #check all input
         json_input = request.get_json(force=True)
 
         if "media" not in json_input:
@@ -54,11 +60,18 @@ class KeyOpinionLeader(restful.Resource):
         keyword = json_input["keyword"].lower()
         match_type = "best_fields"
         if helper.check_keyword_phrase(keyword):
+            """
+            if a phrase, change match_type with phrase_prefix
+            it make Elasticsearch searching keyword as phrases like "nama saya"
+            if match_type use best_fields, Elasticsearch will search with "nama" or "saya"
+            """
             match_type = "phrase_prefix"
             keyword = keyword.replace("*","")
 
         begin = helper.create_timestamp(json_input["begin"])
         end = helper.create_timestamp(json_input["end"])
+
+        # loop for each leader
         for leader in json_input["name"]:
             s = None
 
@@ -75,6 +88,7 @@ class KeyOpinionLeader(restful.Resource):
             q = Q("multi_match", query=keyword, fields=['content'],type=match_type)
             s = s[0:s.count()].query(q)
             result = s.execute()
+            # put total hit in output
             output[leader] = result.hits.total
 
         result = {}
