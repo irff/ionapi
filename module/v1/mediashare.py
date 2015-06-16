@@ -18,6 +18,11 @@ def get_pw(username):
         return "block"
 
 class MediaShare(restful.Resource):
+    DAILY = 1
+    WEEKLY = 2
+    MONTHLY = 3
+    QUARTERLY = 4
+
     @auth.login_required
     def get(self):
         return {'hello': 'world'}
@@ -65,6 +70,19 @@ class MediaShare(restful.Resource):
         providers = provider_result.aggregations.group_by_state.buckets
 
         delta = date_end - date_begin
+
+        interlude = self.DAILY
+        if "interlude" not in json_input:
+            total_days = delta.days + 1
+            if total_days > 14 and total_days < 30 * 3:
+                interlude = self.WEEKLY
+            elif total_days >= 30 * 3 and total_days < 30 * 24:
+                interlude = self.MONTHLY
+            elif total_days >= 30 * 24:
+                interlude = self.QUARTERLY
+
+        data = self.create_new_data(json_input, providers)
+
         for i in range(delta.days + 1):
             date_data = {}
 
@@ -101,31 +119,41 @@ class MediaShare(restful.Resource):
             date_data["date"] = new_current_date_string
             date_data["media"] = {}
 
-            data = {}
-
-            if len(json_input["media"]) > 0:
-                for a in json_input["media"]:
-                    data[a] = 0
-            else:
-                for a in providers:
-                    data[a.key] = 0
-
             for a in result.aggregations.group_by_state.buckets:
                 if len(json_input["media"]) == 0 or a.key in json_input["media"]:
-                    data[a.key] = a.doc_count
+                    if interlude == self.DAILY:
+                        data[a.key] = a.doc_count
+                    else:
+                        data[a.key] += a.doc_count
 
-            if "rakyat.com" in data and "pikiran" in data:
-                data["pikiran-rakyat.com"] = data["rakyat.com"]
-                data.pop("rakyat.com")
-                data.pop("pikiran")
+            if (interlude == self.DAILY) or ((i + 1) % 7 == 0 and interlude == self.WEEKLY) or ((i + 1) % 30 == 0 and interlude == self.MONTHLY) or ((i + 1) % 120 == 0 and interlude == self.QUARTERLY):
+                print "new data"
 
-            if "bbc.co.uk" in data and "indonesia" in data:
-                data["bbc.co.uk/indonesia"] = data["bbc.co.uk"]
-                data.pop("bbc.co.uk")
-                data.pop("indonesia")
+                if "rakyat.com" in data and "pikiran" in data:
+                    data["pikiran-rakyat.com"] = data["rakyat.com"]
+                    data.pop("rakyat.com")
+                    data.pop("pikiran")
 
-            date_data["media"] = data
+                if "bbc.co.uk" in data and "indonesia" in data:
+                    data["bbc.co.uk/indonesia"] = data["bbc.co.uk"]
+                    data.pop("bbc.co.uk")
+                    data.pop("indonesia")
 
-            output["result"].append(date_data)
+                date_data["media"] = data
+                output["result"].append(date_data)
+
+                data = self.create_new_data(json_input, providers)
 
         return output
+
+    def create_new_data(self, json_input, providers):
+        data = {}
+
+        if len(json_input["media"]) > 0:
+            for a in json_input["media"]:
+                data[a] = 0
+        else:
+            for a in providers:
+                data[a.key] = 0
+
+        return data
