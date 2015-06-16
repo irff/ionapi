@@ -18,10 +18,10 @@ def get_pw(username):
         return "block"
 
 class MediaShare(restful.Resource):
-    DAILY = 1
-    WEEKLY = 2
-    MONTHLY = 3
-    QUARTERLY = 4
+    DAILY = "D"
+    WEEKLY = "W"
+    MONTHLY = "M"
+    QUARTERLY = "Q"
 
     @auth.login_required
     def get(self):
@@ -80,6 +80,8 @@ class MediaShare(restful.Resource):
                 interlude = self.MONTHLY
             elif total_days >= 30 * 24:
                 interlude = self.QUARTERLY
+        else:
+            interlude = json_input["interlude"]
 
         data = self.create_new_data(json_input, providers)
 
