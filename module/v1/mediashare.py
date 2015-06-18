@@ -12,6 +12,7 @@ auth = HTTPBasicAuth()
 @auth.get_password
 def get_pw(username):
     ip =  request.environ.get('HTTP_X_REAL_IP', request.remote_addr)
+
     if ip not in ['128.199.120.29','127.0.0.1']:
         return "unused"
 
@@ -133,7 +134,6 @@ class MediaShare(restful.Resource):
                         data[a.key] += a.doc_count
 
             if (interlude == self.DAILY) or ((i + 1) % 7 == 0 and interlude == self.WEEKLY) or ((i + 1) % 30 == 0 and interlude == self.MONTHLY) or ((i + 1) % 120 == 0 and interlude == self.QUARTERLY):
-                print "new data"
 
                 if "rakyat.com" in data and "pikiran" in data:
                     data["pikiran-rakyat.com"] = data["rakyat.com"]

@@ -12,7 +12,7 @@ auth = HTTPBasicAuth()
 @auth.get_password
 def get_pw(username):
     ip =  request.environ.get('HTTP_X_REAL_IP', request.remote_addr)
-    if ip not in ['128.199.120.29','127.0.0.1']:
+    if ip in ['128.199.120.29','127.0.0.1']:
         return "unused"
 
     user = User.verify_auth_token(username)
