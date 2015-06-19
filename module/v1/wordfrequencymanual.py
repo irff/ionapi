@@ -96,13 +96,34 @@ class WordFrequencyManual(restful.Resource):
         s = s.query(q)
         result = s[0:s.count()].execute()
         words = {}
+
+        # get stop words
+        stopwords = None
+        with open("stopwords.txt") as f:
+            stopwords = f.read().splitlines()
+
         for i in result:
-            content = i.content.split(" ")
-            for word in content:
-                if(word not in words):
-                    words[word] = 1
-                else:
-                    words[word] += 1
+            content = i.content
+            content = content.lower()
+            content = content.replace(",","").replace(".","")
+            content = content.replace(";","").replace(":","")
+            content = content.replace("?","").replace("!","")
+            content = content.replace("<","").replace(">","")
+            content = content.replace("(","").replace(")","")
+            content = content.replace("{","").replace("}","")
+            content = content.replace("[","").replace("]","")
+            content = content.replace("+","").replace("-","")
+            content = content.replace("\\","").replace("/","")
+            content = content.replace("=","").replace("*","")
+            content = content.replace("'","").replace("\"","")
+            content = content.replace("@","").replace("#","").replace("$","").replace("%","").replace("^","")
+            content = content.replace("~","")
+            for word in content.split(" "):
+                if(word not in stopwords and not word.isdigit()):
+                    if(word not in words):
+                        words[word] = 1
+                    else:
+                        words[word] += 1
 
         resultwords = {}
         counter = 1
