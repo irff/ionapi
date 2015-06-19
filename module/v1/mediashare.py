@@ -11,12 +11,14 @@ auth = HTTPBasicAuth()
 
 @auth.get_password
 def get_pw(username):
+
     ip =  request.environ.get('HTTP_X_REAL_IP', request.remote_addr)
 
-    if ip not in ['128.199.120.29','127.0.0.1']:
+    if ip in ['128.199.120.29','127.0.0.1']:
         return "unused"
 
     user = User.verify_auth_token(username)
+    print ip
     if user:
         return "unused"
     else:
@@ -68,7 +70,7 @@ class MediaShare(restful.Resource):
         date_begin = helper.create_date(json_input["begin"])
         date_end = helper.create_date(json_input["end"])
 
-
+        # get providers
         provider = Search(using=client, index=settings.ES_INDEX)
         provider.aggs.bucket("group_by_state","terms",field="provider", size=0)
         provider_result = provider.execute()
@@ -76,6 +78,7 @@ class MediaShare(restful.Resource):
 
         delta = date_end - date_begin
 
+        # define interlude
         interlude = self.DAILY
         if "interlude" not in json_input:
             total_days = delta.days + 1
@@ -86,19 +89,35 @@ class MediaShare(restful.Resource):
             elif total_days >= 30 * 24:
                 interlude = self.QUARTERLY
         else:
-            interlude = json_input["interlude"]
+            if json_input["interlude"] in ["D","W","M","Q"]:
+                interlude = json_input["interlude"]
 
         data = self.create_new_data(json_input, providers)
 
-        for i in range(delta.days + 1):
+        # get total day
+        N = (delta.days + 1)
+
+        # get distance for each day in result
+        dist = 1
+        if interlude == self.WEEKLY:
+            dist = 7
+        elif interlude == self.MONTHLY:
+            dist = 30
+        elif interlude == self.QUARTERLY:
+            dist = 90
+
+        loop = 0
+        i = 0
+        while i < N:
             date_data = {}
 
+            #get current date
             current_date = helper.add_days_timedelta(date_begin, i)
-
             current_date_string = current_date.strftime("%Y-%m-%d %H:%M:%S")
             new_current_date_string = current_date_string[0:10]
 
-            next_date_string = helper.add_days_timedelta(current_date, 1).strftime("%Y-%m-%d %H:%M:%S")
+            # add next date with dist
+            next_date_string = helper.add_days_timedelta(current_date, dist).strftime("%Y-%m-%d %H:%M:%S")
 
             begin = helper.create_timestamp(current_date_string)
             end = helper.create_timestamp(next_date_string)
@@ -133,22 +152,22 @@ class MediaShare(restful.Resource):
                     else:
                         data[a.key] += a.doc_count
 
-            if (interlude == self.DAILY) or ((i + 1) % 7 == 0 and interlude == self.WEEKLY) or ((i + 1) % 30 == 0 and interlude == self.MONTHLY) or ((i + 1) % 120 == 0 and interlude == self.QUARTERLY):
+            if "rakyat.com" in data and "pikiran" in data:
+                data["pikiran-rakyat.com"] = data["rakyat.com"]
+                data.pop("rakyat.com")
+                data.pop("pikiran")
 
-                if "rakyat.com" in data and "pikiran" in data:
-                    data["pikiran-rakyat.com"] = data["rakyat.com"]
-                    data.pop("rakyat.com")
-                    data.pop("pikiran")
+            if "bbc.co.uk" in data and "indonesia" in data:
+                data["bbc.co.uk/indonesia"] = data["bbc.co.uk"]
+                data.pop("bbc.co.uk")
+                data.pop("indonesia")
 
-                if "bbc.co.uk" in data and "indonesia" in data:
-                    data["bbc.co.uk/indonesia"] = data["bbc.co.uk"]
-                    data.pop("bbc.co.uk")
-                    data.pop("indonesia")
+            date_data["media"] = data
+            output["result"].append(date_data)
 
-                date_data["media"] = data
-                output["result"].append(date_data)
-
-                data = self.create_new_data(json_input, providers)
+            data = self.create_new_data(json_input, providers)
+            i += dist
+            loop += 1
 
         return output
 
