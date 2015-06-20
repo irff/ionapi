@@ -54,6 +54,11 @@ class News(restful.Resource):
         if "from_page" not in json_input:
             json_input["from_page"] = 0
 
+        if "sort_by" not in json_input:
+            json_input["sort_by"] = "publish"
+
+        if "order" not in json_input:
+            json_input["order"] = "asc"
 
         if helper.check_datetime(json_input["begin"]) == False:
             return {"error":"begin date format exception"}
@@ -77,6 +82,16 @@ class News(restful.Resource):
         page_size = json_input["page_size"]
         from_page = json_input["from_page"]
         keyword = json_input["keyword"].lower()
+        if json_input["sort_by"] in ["timestamp","publish","title"]:
+            sort_by = json_input["sort_by"]
+        else:
+            sort_by = "publish"
+
+        if json_input["order"] in ["asc","desc"]:
+            order = json_input["order"]
+        else:
+            order = "asc"
+
         begin = helper.create_timestamp(json_input["begin"])
         end = helper.create_timestamp(json_input["end"])
 
@@ -94,7 +109,7 @@ class News(restful.Resource):
             .filter("terms",provider=providers,execution="or")\
             .filter("range",**{'publish': {"from": begin,"to": end}})
         q = Q("multi_match", query=keyword, fields=['content'], type=match_type)
-        s = s.query(q).extra(from_=from_page, size=page_size)
+        s = s.query(q).extra(from_=from_page, size=page_size).sort({sort_by : {"order":order}})
         result = s.execute()
 
         total = result.hits.total
