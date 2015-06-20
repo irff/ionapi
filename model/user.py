@@ -29,7 +29,7 @@ class User(Base):
     def hash_password(self, password):
         self.password = hashlib.sha224(password).hexdigest()
 
-    def generate_auth_token(self, expiration = 600):
+    def generate_auth_token(self, expiration = 7200):
         s = Serializer(settings.SECRET_KEY, expires_in = expiration)
         return s.dumps({ 'id': self.iduser })
 
