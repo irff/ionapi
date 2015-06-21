@@ -109,7 +109,7 @@ class News(restful.Resource):
             .filter("terms",provider=providers,execution="or")\
             .filter("range",**{'publish': {"from": begin,"to": end}})
         q = Q("multi_match", query=keyword, fields=['content'], type=match_type)
-        s = s.query(q).extra(from_=from_page, size=page_size).sort({sort_by : {"order":order}})
+        s = s.query(q).sort({sort_by : {"order":order}}).extra(from_=from_page, size=page_size)
         result = s.execute()
 
         total = result.hits.total
@@ -136,8 +136,19 @@ class News(restful.Resource):
             item["date_crawl"] = i.timestamp
             news.append(item)
 
+        # Because field title is analyzed, so elasticsearch will sort with full text sorting
+        # so, we use manual sort of string for title
+        if sort_by == "title":
+            if order == "desc":
+                news = sorted(news, key=lambda x: x["title"], reverse=True)
+            else:
+                news = sorted(news, key=lambda x: x["title"], reverse=False)
+
         result = {}
         result["result"] = []
         result["result"].append({"news":news})
+
+
+
         result["total"] = total
         return result
