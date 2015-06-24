@@ -99,7 +99,7 @@ class WordFrequencyManual(restful.Resource):
 
         # get stop words
         stopwords = None
-        with open("stopwords.txt") as f:
+        with open("/var/www/ionapi/stopwords.txt") as f:
             stopwords = f.read().splitlines()
 
         for i in result:
