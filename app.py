@@ -3,6 +3,10 @@ from flask.ext import restful
 from flask.ext.cors import CORS
 import logging
 
+from tornado.wsgi import WSGIContainer
+from tornado.web import Application, FallbackHandler
+from tornado.ioloop import IOLoop
+
 from module.v1.helloworld import HelloWorld
 from module.v1.mediashare import MediaShare
 from module.v1.keyopinionleader import KeyOpinionLeader
@@ -45,5 +49,13 @@ api.add_resource(News, endpoint_pre + 'news')
 api.add_resource(Medias, endpoint_pre + 'listmedia')
 api.add_resource(Token, endpoint_pre + 'token')
 
-if __name__ == '__main__':
-    app.run(debug=True,port=8200,host="0.0.0.0")
+#if __name__ == '__main__':
+#    app.run(debug=True,port=8200,host="0.0.0.0")
+	
+if __name__ == "__main__":
+    container = WSGIContainer(app)
+    server = Application([
+        (r'.*', FallbackHandler, dict(fallback=container))
+    ])
+    server.listen(8200, address="0.0.0.0")
+    IOLoop.instance().start()

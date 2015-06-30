@@ -8,3 +8,4 @@ elasticsearch-dsl
 passlib
 mysql-python
 uwsgi
+tornado
