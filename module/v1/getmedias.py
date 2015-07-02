@@ -61,7 +61,8 @@ class Medias(restful.Resource):
             "nytimes.com",
             "huffingtonpost.com",
             "bisnis.com",
-            "jawapos"
+            "jawapos",
+            "tempo.co"
         ]
         result = {}
         result["result"] = medias
