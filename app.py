@@ -6,12 +6,14 @@ import logging
 from tornado.wsgi import WSGIContainer
 from tornado.web import Application, FallbackHandler
 from tornado.ioloop import IOLoop
+from tornado import autoreload
 
 from module.v1.helloworld import HelloWorld
 from module.v1.mediashare import MediaShare
 from module.v1.keyopinionleader import KeyOpinionLeader
 from module.v1.wordfrequency import WordFrequency
 from module.v1.wordfrequencymanual import WordFrequencyManual
+from module.v1.hottopic import HotTopic
 from module.v1.mediasummary import MediaShareSummary
 from module.v1.news import News
 from module.v1.getmedias import Medias
@@ -45,17 +47,20 @@ api.add_resource(MediaShareSummary, endpoint_pre + 'mediashare/summary')
 api.add_resource(KeyOpinionLeader, endpoint_pre + 'keyopinionleader')
 # api.add_resource(WordFrequency, endpoint_pre + 'wordfrequency')
 api.add_resource(WordFrequencyManual, endpoint_pre + 'wordfrequencymanual')
+api.add_resource(HotTopic, endpoint_pre + 'hottopic')
 api.add_resource(News, endpoint_pre + 'news')
 api.add_resource(Medias, endpoint_pre + 'listmedia')
 api.add_resource(Token, endpoint_pre + 'token')
 
 #if __name__ == '__main__':
 #    app.run(debug=True,port=8200,host="0.0.0.0")
-	
+
 if __name__ == "__main__":
     container = WSGIContainer(app)
     server = Application([
         (r'.*', FallbackHandler, dict(fallback=container))
     ])
     server.listen(8200, address="0.0.0.0")
-    IOLoop.instance().start()
+    ioloop = IOLoop.instance()
+    autoreload.start(ioloop)
+    ioloop.start()

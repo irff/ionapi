@@ -13,6 +13,41 @@ def get_medias():
     :return: list of media
     """
 
+    return  [
+            "kompas.com",
+            "antaranews.com",
+            "metrotvnews.com",
+            "kontan",
+            "pikiran-rakyat.com",
+            "viva.co.id",
+            "thejakartapost.com",
+            "suara.com",
+            "okezone.com",
+            "cnnindonesia.com",
+            "bbc.com",
+            "merdeka.com",
+            "reuters.com",
+            "detik.com",
+            "bbc.co.uk/indonesia",
+            "inilah.com",
+            "beritasatu",
+            "news.nationalgeographic.com",
+            "aljazeera.com",
+            "smh.com.au",
+            "mediaindonesia.com",
+            "swa.co.id",
+            "rmol.co",
+            "edition.cnn.com",
+            "thejakartaglobe.beritasatu.com",
+            "bijaks.net",
+            "nytimes.com",
+            "huffingtonpost.com",
+            "bisnis.com",
+            "jawapos",
+            "tempo.co"
+        ]
+
+    """
     client = Elasticsearch(
         [settings.ES_URL]
     )
@@ -34,3 +69,4 @@ def get_medias():
         if name not in ["indonesia","pikiran"]:
             medias.append(name)
     return medias
+    """

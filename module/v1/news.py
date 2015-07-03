@@ -72,12 +72,7 @@ class News(restful.Resource):
         if len(json_input["media"]) > 0:
             providers = json_input["media"]
         else:
-            provider = Search(using=client, index=settings.ES_INDEX)
-            provider.aggs.bucket("group_by_state","terms",field="provider", size=0)
-            provider_result = provider.execute()
-            providers = []
-            for p in provider_result.aggregations.group_by_state.buckets:
-                providers.append(p.key)
+            providers = ionelasticsearch.get_medias()
 
         page_size = json_input["page_size"]
         from_page = json_input["from_page"]

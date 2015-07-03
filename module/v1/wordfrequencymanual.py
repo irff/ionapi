@@ -1,12 +1,13 @@
 from flask.ext import restful
 from flask import request
+from flask_httpauth import HTTPBasicAuth
 from elasticsearch_dsl import Search, Q
-from elasticsearch_dsl.query import MultiMatch
 import settings
 import helper
 import ionelasticsearch
 import operator
-from flask_httpauth import HTTPBasicAuth
+from collections import Counter
+
 from model.user import  User
 
 auth = HTTPBasicAuth()
@@ -24,6 +25,15 @@ def get_pw(username):
         return "block"
 
 class WordFrequencyManual(restful.Resource):
+
+    def __init__(self):
+        self.words = Counter()
+        # get stop words
+        self.stopwords = None
+        with open("stopwords.txt") as f:
+            self.stopwords = f.read().splitlines()
+
+
     @auth.login_required
     def get(self):
         return {'hello': 'world'}
@@ -39,7 +49,7 @@ class WordFrequencyManual(restful.Resource):
         json_input = request.get_json(force=True)
 
         if "media" not in json_input:
-            json_input["media"] = [];
+            json_input["media"] = []
 
         if "keyword" not in json_input:
             return {"error":"keyword required"}
@@ -65,12 +75,7 @@ class WordFrequencyManual(restful.Resource):
         if len(json_input["media"]) > 0:
             providers = json_input["media"]
         else:
-            provider = Search(using=client, index=settings.ES_INDEX)
-            provider.aggs.bucket("group_by_state","terms",field="provider", size=0)
-            provider_result = provider.execute()
-            providers = []
-            for p in provider_result.aggregations.group_by_state.buckets:
-                providers.append(p.key)
+            providers = ionelasticsearch.get_medias()
 
         keyword = json_input["keyword"].lower()
         limit = json_input["limit"]
@@ -88,54 +93,43 @@ class WordFrequencyManual(restful.Resource):
             keyword = keyword.replace("*","")
 
         s = Search(using=client, index=settings.ES_INDEX) \
-            .filter("terms",provider=providers)\
+            .filter("terms",provider=providers,execution="or")\
             .filter("range",**{'publish': {"from": begin,"to": end}})
-
         q = Q("multi_match", query=keyword, fields=['content'], type=match_type)
+        s = s.query(q).sort({"publish" : {"order":"asc"}}).extra(from_=0, size=1000)
+        result = s.execute()
 
-        s = s.query(q)
-        result = s[0:s.count()].execute()
-        words = {}
-
-        # get stop words
-        stopwords = None
-        with open("/var/www/ionapi/stopwords.txt") as f:
-            stopwords = f.read().splitlines()
-
-        for i in result:
-            content = i.content
-            content = content.lower()
-            content = content.replace(",","").replace(".","")
-            content = content.replace(";","").replace(":","")
-            content = content.replace("?","").replace("!","")
-            content = content.replace("<","").replace(">","")
-            content = content.replace("(","").replace(")","")
-            content = content.replace("{","").replace("}","")
-            content = content.replace("[","").replace("]","")
-            content = content.replace("+","").replace("-","")
-            content = content.replace("\\","").replace("/","")
-            content = content.replace("=","").replace("*","")
-            content = content.replace("'","").replace("\"","")
-            content = content.replace("@","").replace("#","").replace("$","").replace("%","").replace("^","")
-            content = content.replace("~","")
-            for word in content.split(" "):
-                if(word not in stopwords and not word.isdigit()):
-                    if(word not in words):
-                        words[word] = 1
-                    else:
-                        words[word] += 1
+        self.count_generator(result, keyword)
 
         resultwords = {}
-        counter = 1
-        for w in sorted(words.items(), key=operator.itemgetter(1), reverse=True):
+        for w in self.words.most_common(limit):
             if w[0] not in(""):
                 resultwords[w[0]] = w[1]
 
-            if counter == limit:
-                break
-            counter += 1
-
         result = {}
         result["result"] = []
-        result["result"].append({"words":resultwords})
+        result["result"].append({"words": resultwords})
         return result
+
+    def count_generator(self, result, keyword):
+        for i in result:
+            self.count_content(i.content, keyword)
+
+    def count_content(self, content, keyword):
+        content = content.lower()
+        content = content.replace(",","").replace(".","")
+        content = content.replace(";","").replace(":","")
+        content = content.replace("?","").replace("!","")
+        content = content.replace("<","").replace(">","")
+        content = content.replace("(","").replace(")","")
+        content = content.replace("{","").replace("}","")
+        content = content.replace("[","").replace("]","")
+        content = content.replace("+","").replace("-","")
+        content = content.replace("\\","").replace("/","")
+        content = content.replace("=","").replace("*","")
+        content = content.replace("'","").replace("\"","")
+        content = content.replace("@","").replace("#","").replace("$","").replace("%","").replace("^","")
+        content = content.replace("~","")
+        for word in content.split(" "):
+            if(word not in self.stopwords and not word.isdigit() and word not in keyword.split(" ")):
+                self.words[word] += 1
