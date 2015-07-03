@@ -30,7 +30,7 @@ class WordFrequencyManual(restful.Resource):
         self.words = Counter()
         # get stop words
         self.stopwords = None
-        with open("stopwords.txt") as f:
+        with open(settings.STOPWORDS_LOCATION) as f:
             self.stopwords = f.read().splitlines()
 
 
