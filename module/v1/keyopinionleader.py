@@ -50,7 +50,10 @@ class KeyOpinionLeader(restful.Resource):
             return {"error":"end date required"}
 
         if "name" not in json_input:
-            return {"error":"list leader name required"}
+            # get stop words
+            json_input["name"] = None
+            with open(settings.NAME_LOCATION) as f:
+                json_input["name"] = f.read().splitlines()
 
         if helper.check_datetime(json_input["begin"]) == False:
             return {"error":"begin date format exception"}
