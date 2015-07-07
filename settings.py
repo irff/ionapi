@@ -3,6 +3,8 @@ ES_INDEX = "langgar"
 ES_TYPE = "news"
 SECRET_KEY = ")!)##)!)#$!@)%!((#"
 
+PORT = 8200
+
 ################## SERVER #######################
 ES_URL = "128.199.81.117"
 STOPWORDS_LOCATION = "/var/www/ionapi/txt/stopwords.txt"

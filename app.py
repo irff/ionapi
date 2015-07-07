@@ -2,11 +2,14 @@ from flask import Flask
 from flask.ext import restful
 from flask.ext.cors import CORS
 import logging
+import settings
+import sys
 
 from tornado.wsgi import WSGIContainer
 from tornado.web import Application, FallbackHandler
 from tornado.ioloop import IOLoop
 from tornado import autoreload
+from tornado.httpserver import HTTPServer
 
 from module.v1.helloworld import HelloWorld
 from module.v1.mediashare import MediaShare
@@ -56,11 +59,23 @@ api.add_resource(Token, endpoint_pre + 'token')
 #    app.run(debug=True,port=8200,host="0.0.0.0")
 
 if __name__ == "__main__":
+    port = settings.PORT
+
     container = WSGIContainer(app)
-    server = Application([
-        (r'.*', FallbackHandler, dict(fallback=container))
-    ])
-    server.listen(8200, address="0.0.0.0")
-    ioloop = IOLoop.instance()
-    autoreload.start(ioloop)
-    ioloop.start()
+
+    if len(sys.argv) > 1 and sys.argv[1] == "PROD":
+        app = Application([
+            (r'.*', FallbackHandler, dict(fallback=container))
+        ])
+        server = HTTPServer(app)
+        server.bind(port)
+        server.start(0)  # forks one process per cpu
+        IOLoop.current().start()
+    else:
+        server = Application([
+            (r'.*', FallbackHandler, dict(fallback=container))
+        ])
+        server.listen(port, address="0.0.0.0")
+        ioloop = IOLoop.instance()
+        autoreload.start(ioloop)
+        ioloop.start()
