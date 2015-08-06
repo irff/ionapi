@@ -6,7 +6,7 @@ SECRET_KEY = ")!)##)!)#$!@)%!((#"
 PORT = 8200
 
 ################## SERVER #######################
-ES_URL = "128.199.81.117"
+ES_URL = "52.25.206.143"
 STOPWORDS_LOCATION = "/var/www/ionapi/txt/stopwords.txt"
 NAME_LOCATION = "/var/www/ionapi/txt/name.txt"
 
