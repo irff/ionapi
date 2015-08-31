@@ -138,6 +138,7 @@ class MediaShare(restful.Resource):
 
             q = Q("multi_match", query=new_keyword, fields=['content'], type=match_type)
             s = s.query(q)
+            s = s.params(search_type="count")
             s.aggs.bucket("group_by_state","terms",field="provider", size=0)
 
             result = s.execute()

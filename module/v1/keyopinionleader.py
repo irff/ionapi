@@ -93,9 +93,11 @@ class KeyOpinionLeader(restful.Resource):
                     .filter("range",**{'publish': {"from": begin,"to": end}})
 
             q = Q("multi_match", query=keyword, fields=['content'],type=match_type)
+            s = s.params(search_type="count")
             s = s[0:s.count()].query(q)
             result = s.execute()
             # put total hit in output
+
             output[leader] = result.hits.total
 
         result = {}
